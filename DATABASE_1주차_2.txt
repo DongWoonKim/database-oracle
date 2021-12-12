@@ -1,0 +1,266 @@
+[BETWEEN A AND B]
+** SELECT 열들,... FROM 테이블명
+WHERE 범위기준 열 BETWEEN A AND B;
+
+SELECT *
+FROM EMP
+WHERE SAL >= 2000 AND SAL <= 3000;
+
+-> 
+SELECT *
+FROM EMP
+WHERE SAL BETWEEN 2000 AND 3000;
+
+(문제) 부서번호 10~20 사이의 직원 이름을 출력하시오.
+SELECT *
+FROM EMP
+WHERE DETPNO BETWEEN 10 AND 20;
+
+부정
+SELECT *
+FROM EMP
+WHERE SAL < 2000 AND SAL > 3000;
+
+-> 
+SELECT *
+FROM EMP
+WHERE SAL NOT BETWEEN 2000 AND 3000;
+
+(문제) 부서번호 10~20 사이에 포함되지 않은 직원 이름을 출력하시오.
+SELECT *
+FROM EMP
+WHERE DEPTNO NO BETWEEN 10 AND 20;
+
+[LIKE : 연산자와 와일드 카드]
+LIKE : 이메일이나 게시판 제목 또는 내용 검색 기능처럼 일부 문자열이 포함된 데이터를 조회할 때 사용.
+와일드 카드(%) : 길이와 상관없이 모든 문자 데이터를 의미.
+// S로 끝나는 이름 데이터를 조회하고싶다.
+SELECT ENAME 
+FROM EMP
+WHERE ENAME LIKE '%S'; 
+
+(문제) A로 시작는 ENAME을 출력하시오.
+-> SELECT ENAME
+FROM EMP
+WHERE ENAME LIKE 'A%';
+
+// 어떤 단어가 포함된 제목 또는 본문 검색과 같은 기능을 구현할 때
+-> SELECT *
+FROM EMP
+WHERE ENAME LIKE '%AM%';
+
+(문제) AR이 포함된 ENAME을 출력하시오.
+-> SELECT *
+FROM EMP
+WHERE ENAME LIKE '%AR%';
+
+[IS NULL 연산자]
+SELECT * FROM EMP COMM = NULL;
+// NULL -> 아예 없다를 뜻한다.
+// 아예없는 것은 비교를 할 수 없다.
+// NULL + 100 = NULL
+하지만 NULL을 체크하고 싶다.
+-> SELECT * FROM EMP WHERE COMM IS NULL;
+NULL 부정
+SELECT * FROM EMP COMM <> NULL; (X)
+-> SELECT * FROM EMP WHERE COMM IS NOT NULL;
+
+(문제) mgr이 NULL이 아닌경우를 출력하시오.
+-> 
+SELECT * 
+FROM EMP 
+WHERE MGR IS NOT NULL;
+
+[집합 연산] : (서로다른) 두 개 이상의 SELECT 문의 결과 값을 연결할 때 사용한다.
+주의점 : 열 개수와 각 열의 자료형이 순서별로 일치해야만 한다! 
+
+DEPTNO = 10 경우랑 DEPTNO = 20인 경우의 데이터를 합쳐서 보고싶다.
+ 
+
+** UNION 종류
+UNION : 연결된 SELECT문의 결과 값을 합집합으로 묶어준다. 결과 값의 중복은 제거된다.
+
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10
+UNION
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 20;
+
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10 AND DEPTNO = 20;
+
+UNION ALL : 연결된 SELECT문의 결과 값을 합집합을 묶어준다. 결과 값의 중복 제거없이 모두 출력한다.
+
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10
+UNION ALL
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 20;
+
+[대/소문자를 치환해주는 UPPER, LOWER함수]
+SELECT ENAME, UPPER(ENAME), LOWER(ENAME)
+FROM EMP;
+
+(문제) JOB을 대문자로 치환한 데이터와 소문자로 치환한 데이터를 출력하시오.
+DEPTNO 10인경우와, 20인경우를 합쳐서..(UNION)
+** [DEPTNO, JOB, JOB대문자, JOB소문자] 출력
+->
+SELECT DEPTNO, JOB, UPPER(JOB), LOWER(JOB)
+FROM EMP
+WHERE DEPTNO = 10
+UNION
+SELECT DEPTNO, JOB, UPPER(JOB), LOWER(JOB)
+FROM EMP
+WHERE DEPTNO = 20;
+
+[LENGTH : 길이를 구하는 내장함수]
+SELECT ENAME, LENGTH(ENAME) 
+FROM EMP;
+
+[SUBSTR : 문자열 일부를 추출하는 내장함수]
+-- SUBSTR( 문자열 데이터, 시작위치, 추출길이 )
+-- SUBSTR( 문자열 데이터, 시작위치 )
+SELECT 
+JOB, 
+SUBSTR(JOB, 1, 2), 
+SUBSTR(JOB, 3, 2),
+SUBSTR(JOB, 5)
+FROM EMP; 
+
+(문제) 이름을 2 ~ 4로 자르는 열과 3 ~ 모두 자르는 열을 출력하시오. [ENAME, ENAME(2,4), ENAME(3)]
+->
+SELECT 
+ENAME, 
+SUBSTR(ENAME, 2, 4),
+SUBSTR(ENAME, 3)
+FROM EMP;
+
+[REPLACE : 특정 문자를 다른 문자로 바꾸는 내장함수.]
+-- REPLACE( [문자열 데이터 또는 열이름(필수)], [찾는 문자열(필수)], [대체할 문자(선택)]
+SELECT
+'010-1234-5678' AS REPLACE_BEFORE,
+REPLACE( '010-1234-5678', '-', ' ' ) AS REPLACE_1,
+REPLACE( '010-1234-5678', '-' ) AS REPLACE_2
+FROM DUAL;
+
+(복습) 위에 내용을 다시 타이핑해볼 것.
+
+[SYSDATE : 날짜 데이터를 다루는 날짜 함수]
+SELECT
+SYSDATE AS NOW,
+SYSDATE - 1 AS YESTERDAY,
+SYSDATE + 1 AS TOMORROW
+FROM DUAL;
+
+(복습) 위에 내용을 다시 타이핑해볼 것.
+
+[ADD_MONTHS : 특정일자를 기준으로 이후의 날짜를 구해주는 내장함수]
+// 입사일 이후 120일 지난 직원을 출력
+SELECT 
+EMPNO, ENAME, HIREDATE,
+ADD_MONTHS( HIREDATE, 120) AS WORK10YEAR
+FROM EMP;
+
+(문제) 입사일 이후 32년(384) 지난 직원을 출력하시오.
+->
+SELECT
+EMPNO, ENAME, HIREDATE, ADD_MONTHS( HIREDATE, 384 ) AS WORK32YEAR
+FROM EMP;
+
+**
+SELECT
+EMPNO, ENAME, HIREDATE, ADD_MONTHS( HIREDATE, 384 ) AS WORK32YEAR
+FROM EMP
+WHERE ADD_MONTHS( HIREDATE, 384 ) < SYSDATE;
+
+[NVL : 데이터가 NULL이 아니면 그 데이터를 그대로 출력하고 NULL이면 사용자가 입력한 데이터를 출력해주는 내장함수]
+->
+SELECT 
+ENAME, 
+COMM,
+SAL + COMM AS MYMON,
+NVL(COMM, 0),
+SAL + NVL(COMM, 0)
+FROM EMP;
+
+->(NVL2)
+SELECT 
+ENAME, 
+COMM,
+SAL + COMM AS MYMON,
+NVL2(COMM, 'O', 'X')
+FROM EMP;
+
+** 집계함수
+[SUM 함수 : 조건의 맞는 모든 열의 합]
+SELECT SUM(SAL) 
+FROM EMP;
+
+(문제) 연봉(SAL * 12 + COMM)을 모두 합산하여 출력하시오.
+-> SELECT
+SUM( SAL * 12 + COMM ) 
+FROM EMP;
+
+[COUNT 함수 : 조건에 맞는 행의 갯수를 구해준다.]
+-> SELECT COUNT(*)
+FROM EMP;
+
+[MAX, MIN : 최댓값, 최솟값을 구하는 내장함수.]
+-> SELECT MAX(SAL) FROM EMP;
+-> SELECT MIN(SAL) FROM EMP;
+
+[AVG : 평균값을 구하는 내장함수]
+-> SELECT AVG(SAL) FROM EMP;
+
+[GROUP BY : 결과 값을 원하는 기준의 그룹으로 묶어 출력]
+
+// 부서별 MAX SAL을 알고싶다.
+SELECT MAX(SAL) FROM EMP WHERE DEPTNO = 10;
+SELECT MAX(SAL) FROM EMP WHERE DEPTNO = 20;
+SELECT MAX(SAL) FROM EMP WHERE DEPTNO = 30;
+ 
+... -> 귀찮다. : GROUP BY 
+SELECT DEPTNO, MAX(SAL)
+FROM EMP
+GROUP BY DEPTNO;
+
+[HAVING절 : GROUP에 조건을 주고싶다.]
+SELECT
+DEPTNO, JOB, AVG(SAL)
+FROM EMP
+GROUP BY DEPTNO, JOB
+HAVING AVG(SAL) >= 2000;
+
+** where절과 차이점
+where절은 하나하나의 row에 대해 조건을 체크하지만
+having절은 전체 그룹핑한 결과에 대해서만 조건을 체크한다.
+
+(문제) JOB그룹의 사원번호 평균을 3000 이상인 데이터만 출력하시오. 
+////////////////////////////////////////
+(연습문제)
+1. JOB이 CLERK인 데이터 조회
+2. SAL이 1000이상인 데이터 조회
+3. COMM이 NULL인 데이터만 조회
+4. COMM이 NULL이 아닌 데이터만 조회
+5. 사원이름에서 'R'로 끝나는 데이터 조회
+6. 사원이름이 'M'으로 시작하면서 부서번호가 30이 아닌 사람 조회
+7. 연봉이 1000~2000인 데이터 조회
+8. JOB이 CLERK인 사람을 내림차순으로 정렬
+9. 연봉순 정렬(오름)
+10. 부서중복 제거하여 출력하시오.
+
++ [in] 사용법
+
+
+
+
+ 
+
+
+
+
