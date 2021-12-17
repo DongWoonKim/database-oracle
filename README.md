@@ -34,3 +34,15 @@ https://programmers.co.kr/learn/courses/30/parts/17042
 
 
 
+### 1주차-2 실습 : 프로그래머스 group by 입양 시각 구하기(1), 입양 시각 구하기(2) 문제 제외하고 풀기
+
+
+
+### [부록]
+
+#### - 오라클 날짜 데이터 기준 포맷
+
+<img src="https://ifh.cc/g/VEU1xT.jpg" alt="l3-switch" style="zoom:70%;" />
+
+
+
