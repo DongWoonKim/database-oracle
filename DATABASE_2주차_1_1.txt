@@ -1,0 +1,173 @@
+[연산자]
+- 산술 연산자 : +, -, *, /
+SELECT * FROM EMP
+WHERE SAL * 12 = 36000;
+
+- 비교 연산자 : >, >=, <, <=
+SELECT * FROM
+WHERE SAL >= 3000;
+
+문자도 비교가능 하지만 사용빈도수는 낮다.
+// 사원 이름의 첫 문자가 F와 같거나 뒤쪽인 것만 검색
+SELECT * FROM EMP 
+WHERE ENAME >= 'F';
+->문자열 비교할 때 영어 사전처럼 알파벳 순서로 문자열 '대소'를 비교한다.
+
+SELECT * FROM EMP
+WHERE ENAME <= 'FORZ';
+->알파벳 순서로 FORZ를 포함해서 앞에 있는 행을 출력
+
+- 등가 비교 연산자 : =, (!=, <>, ^=) A와B가 다른경우 TRUE, 같은 경우 FALSE
+SELECT * FROM EMP WHERE SAL != 3000;
+SELECT * FROM EMP WHERE SAL <> 3000;
+SELECT * FROM EMP WHERE SAL ^= 3000;
+
+- 논리 부정 연산자 : NOT
+SELECT * FROM EMP WHERE NOT SAL = 3000;
+
+- IN 연산자
+SELECT [열들...]
+FROM [테이블]
+WHERE 
+열이름 IN ( 데이터들... );
+
+SELECT * FROM EMP
+WHERE
+JOB = 'MANAGER' OR
+JOB = 'SALESMAN' OR
+JOB = 'CLERK';
+
+-> SELECT * FROM EMP
+WHERE JOB IN ( 'MANAGER', 'SALESMAN', 'CLERK' );
+
+SELECT * FROM EMP
+WHERE
+JOB != 'MANAGER' AND
+JOB <> 'SALSEMAN' AND
+JOB ^= 'CLERK';
+
+-> SELECT * FROM EMP
+WHERE JOB NOT IN ( 'MANAGER', 'SALESMAN', 'CLERK' );
+
+- 집합 연산자 
+1. 합집합 
+1) UNION 중복제거
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10
+UNION
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 20;
+
+2) UNIONALL 중복된 결과 값도 제거 없이 모두 출력
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10
+UNION ALL
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 20;
+
+2. 차집합 : MINUS
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+MINUS
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10; 
+
+3. 교집합 : INTERSECT
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+INTERSECT
+SELECT EMPNO, ENAME, SAL, DEPTNO
+FROM EMP
+WHERE DEPTNO = 10; 
+
+[내장 함수]
+- LPAD, RPAD함수 : 데이터의 빈 공간을 특정 문자로 채운다.
+LPAD( [문자열 데이터 또는 열이름(필수)], [데이터의 자릿수(필수)], [빈 공간에 채울 문자(선택)] )
+RPAD( [문자열 데이터 또는 열이름(필수)], [데이터의 자릿수(필수)], [빈 공간에 채울 문자(선택)] )
+
+SELECT 
+	'ORACLE',
+	LPAD('ORACLE', 10, '#') AS LPAD_1,
+	RPAD('ORACLE', 10, '*') AS RPAD_1,
+	LPAD('ORACLE', 10) AS LPAD_2,
+	RPAD('ORACLE', 10) AS RPAD_2
+FROM DUAL;
+
+// 주민번호 * 처리하기
+예) 123456-1234567 -> 123456-*******
+SELECT
+	RPAD( '123456-', '14', '*' ) AS JUMIN
+FROM DUAL;
+
+- CONCAT함수 : 두 문자열 데이터를 합친다.
+SELECT 
+CONCAT(EMPNO, ENAME),
+CONCAT(EMPNO, CONCAT(' : ', ENAME))
+FROM EMP
+WHERE ENAME = 'SCOTT'; 
+
+- TRIM, LTRIM, RTRIM 함수 : 특정 문자를 지운다.
+SELECT
+'[' || ' __ABC__ ' || ']',
+'[' || TRIM(' __ABC__ ') || ']' AS TRIM,
+'[' || LTRIM(' __ABC__ ') || ']' AS LTRIM,
+'[' || RTRIM(' __ABC__ ') || ']' AS RTRIM,
+'[' || TRIM('_' FROM '__ABC__') || ']' AS TRIM2,
+'[' || TRIM(LEADING '_' FROM '__ABC__') || ']' AS LEADING_TRIM,
+'[' || TRIM(TRAILING '_' FROM '__ABC__') || ']' AS TRAILING_TRIM,
+'[' || TRIM(BOTH '_' FROM '__ABC__') || ']' AS BOTH_TRIM
+FROM DUAL;
+
+[숫자 함수]
+- ROUND : 지정된 숫자의 특정 위치에서 반올림한 값을 반환
+SELECT
+ROUND( 1234.5678 ) AS ROUND,
+ROUND( 1234.5678, 0 ) AS ROUND_0,
+ROUND( 1234.5678, 1 ) AS ROUND_1,
+ROUND( 1234.5678, 2 ) AS ROUND_2,
+ROUND( 1234.5678, -1 ) AS ROUND_MINUS_1,
+ROUND( 1234.5678, -2 ) AS ROUND_MINUS_2
+FROM DUAL;
+
+- TRUNC : 지정된 숫자의 특정 위치에서 버림한 값을 반환
+SELECT 
+TRUNC( 1234.5678 ) AS TRUNC,
+TRUNC( 1234.5678, 0 ) AS TRUNC_0,
+TRUNC( 1234.5678, 1 ) AS TRUNC_1,
+TRUNC( 1234.5678, 2 ) AS TRUNC_2,
+TRUNC( 1234.5678, -1 ) AS TRUNC_MINUS1,
+TRUNC( 1234.5678, -2 ) AS TRUNC_MINUS2
+FROM DUAL;
+
+- CEIL : 지정된 숫자보다 큰 정수 중 가장 작은 정수를 반환
+- FLOOR : 지정된 숫자보다 작은 정수 중 가장 큰 정수를 반환
+
+SELECT
+CEIL( 3.14 ),
+FLOOR( 3.14 ),
+CEIL( -3.14 ),
+FLOOR( -3.14 )
+FROM DUAL;
+
+- MOD : 지정된 숫자를 나눈 나머지 값을 반환
+SELECT
+MOD(15, 6),
+MOD(10, 2),
+MOD(11, 2)
+FROM DUAL;
+
+
+
+
+
+
+
+
+
+
+

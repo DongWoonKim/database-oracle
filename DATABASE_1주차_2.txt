@@ -244,15 +244,25 @@ having절은 전체 그룹핑한 결과에 대해서만 조건을 체크한다.
 ////////////////////////////////////////
 (연습문제)
 1. JOB이 CLERK인 데이터 조회
+-> SELECT * FROM EMP WHERE JOB = 'CLERK';
 2. SAL이 1000이상인 데이터 조회
+-> SELECT * FROM EMP WHERE SAL >= 1000;
 3. COMM이 NULL인 데이터만 조회
+-> SELECT * FROM EMP WHERE COMM IS NULL;
 4. COMM이 NULL이 아닌 데이터만 조회
+-> SELECT * FROM EMP WHERE COMM IS NOT NULL;
 5. 사원이름에서 'R'로 끝나는 데이터 조회
+-> SELECT * FROM EMP WHERE ENAME LIKE '%R';
 6. 사원이름이 'M'으로 시작하면서 부서번호가 30이 아닌 사람 조회
+-> SELECT * FROM EMP WHERE ENAME LIKE 'M%' AND DEPTNO <> 30;
 7. 연봉이 1000~2000인 데이터 조회
+-> SELECT * FROM EMP WHERE SAL BETWEEN 1000 AND 2000;
 8. JOB이 CLERK인 사람을 내림차순으로 정렬
+-> SELECT * FROM EMP WHERE JOB = 'CLERK' ORDER BY ENAME DESC;
 9. 연봉순 정렬(오름)
+-> SELECT * FROM EMP ORDER BY SAL;
 10. 부서중복 제거하여 출력하시오.
+-> SELECT DISTINCT(DEPTNO) FROM EMP;
 
 + [in] 사용법
 
