@@ -36,6 +36,12 @@ https://programmers.co.kr/learn/courses/30/parts/17042
 
 ### 1주차-2 실습 : 프로그래머스 group by 입양 시각 구하기(1), 입양 시각 구하기(2) 문제 제외하고 풀기
 
+### 2주차-2 실습 
+## 프로그래머스 : 문제 다풀기
+
+#### 알아보기!
+- ROWNUM?
+- LEVEL ~ CONNECT BY
 
 
 ### [부록]

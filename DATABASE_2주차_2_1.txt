@@ -1,0 +1,143 @@
+[날짜 함수]
+- 날짜 데이터 + 숫자 : 날짜 데이터보다 숫자만큼 일수 이후의 날짜
+- 날짜 데이터 - 숫자 : 날짜 데이터보다 숫자만큼 일수 이전의 날짜
+- 날짜 데이터 - 날짜 데이터 : 두 날짜 데이터 간의 일수
+- 날짜 데이터 + 날짜 데이터 : 연산 불가, 지원않함.
+
+- SYSDATE : 오라클 데이터베이스 서버가 놓인 운영체제의 날짜와 시간을 보여준다.
+
+select sysdate as now,
+sysdate - 1 as yesterday,
+sysdate +1 as tomorrow
+from dual;
+
+- ADD_MONTHS 함수 : 몇 개월 이후 날짜를 구한다.
+ADD_MONTHS( [날짜 데이터], [더할 개월 수] )
+->특정 날짜 데이터에 입력한 개월 수만큼의 이후 날짜를 출력한다.
+
+SELECT SYSDATE,
+ADD_MONTHS( SYSDATE, 3 )
+FROM DUAL;
+
+-> 윤년등 복잡한 부가적인 계산을 알아서 해준다.
+
+- MONTHS_BETWEEN( [날짜 데이터1], [날짜 데이터2] )
+-> 두 날짜 데이터 간의 날짜 차이를 개월 수로 계산하여 출력한다.
+
+SELECT EMPNO, ENAME, HIREDATE, SYSDATE,
+MONTHS_BETWEEN( HIREDATE, SYSDATE ) AS MONTH1,
+MONTHS_BETWEEN( SYSDATE, HIREDATE ) AS MONTH2,
+TRUNC( MONTHS_BETWEEN( SYSDATE, HIREDATE ) ) AS MONTH3
+FROM EMP;
+
+- NEXT_DAY, LAST_DAY 함수 : 돌아오는 요일, 달의 마지막 날짜를 구하는 함수.
+NEXT_DAY( [날짜 데이터], [요일 문자] ) 
+-> 특정 날짜를 기준으로 돌아오는 요일의 날짜를 출력해 주는 함수.
+LAST_DAY( [날짜 데이터] )
+-> 특정 날짜의 속한 달의 마지막 날짜를 출력해 주는 함수.
+
+select sysdate,
+next_day( sysdate, '월요일' ),
+last_day( sysdate )
+from dual;
+
+- ROUND, TRUNC 함수 : 날짜의 반올림, 버림
+숫자 
+ROUND( [숫자], [반올림 위치] )
+TRUNC( [숫자], [버림 위치] )
+
+날짜
+ROUND( [날짜 데이터], [반올림 기준 포맷] )
+TRUNC( [날짜 데이터], [버림 기준 포맷] )
+
+SELECT SYSDATE,
+ROUND( SYSDATE, 'CC' )   AS FORMAT_CC,
+ROUND( SYSDATE, 'YYYY' ) AS FORMAT_YYYY,
+ROUND( SYSDATE, 'Q' )    AS FORMAT_Q,
+ROUND( SYSDATE, 'DDD' )  AS FORMAT_DDD,
+ROUND( SYSDATE, 'HH' )   AS FORMAT_HH
+FROM DUAL;
+
+SELECT SYSDATE,
+TRUNC( SYSDATE, 'CC' )   AS FORMAT_CC,
+TRUNC( SYSDATE, 'YYYY' ) AS FORMAT_YYYY,
+TRUNC( SYSDATE, 'Q' )    AS FORMAT_Q,
+TRUNC( SYSDATE, 'DDD' )  AS FORMAT_DDD,
+TRUNC( SYSDATE, 'HH' )   AS FORMAT_HH
+FROM DUAL;
+
+[형 변환 함수]
+- TO_CHAR : 숫자 또는 날짜 데이터를 문자 데이터로 변환
+TO_CHAR( [날짜 데이터], [출력되길 원하는 문자 형태] )
+-> SELECT TO_CHAR( SYSDATE, 'YYYY/MM/DD HH24:MI:SS' ) AS 현재날짜시간
+FROM DUAL;
+
+-> SELECT
+TO_CHAR( SYSDATE, 'MM' ) AS MM,
+TO_CHAR( SYSDATE, 'MON' ) AS MON,
+TO_CHAR( SYSDATE, 'MONTH' ) AS MONTH,
+TO_CHAR( SYSDATE, 'DD' ) AS DD,
+TO_CHAR( SYSDATE, 'DY' ) AS DY,
+TO_CHAR( SYSDATE, 'DAY' ) AS DAY,
+FROM DUAL;
+
+HH24 : 24시간으로 표현한 시간
+HH, HH12 : 12시간으로 표현한 시간
+MI : 분
+SS : 초
+AM, PM, A.M., P.M. : 오전, 오후 표시
+
+-> SELECT SYSDATE,
+TO_CHAR( SYSDATE, 'HH24:MI:SS' ) AS HH24MISS,
+TO_CHAR( SYSDATE, 'HH12:MI:SS AM' ) AS HHMISS_AM,
+TO_CHAR( SYSDATE, 'HH:MI:SS P.M.' ) AS HHMISS_PM
+FROM DUAL;
+
+- TO_NUMBER : 문자 데이터를 숫자 데이터로 변환
+TO_NUMBER( [문자열 데이터], [인식될 숫자형태] )
+-> SELECT TO_NUMBER('1,300', '999,999') - TO_NUMBER('1500', '999,999')
+FROM DUAL;
+
+- TO_DATE : 문자 데이터를 날짜 데이터로 변환
+TO_DATE( [문자열 데이터], [인식될 날짜형태] ) 
+-> SELECT TO_DATE( '2018-07-14', 'YYYY-MM-DD' ) AS TODATE1,
+TO_DATE( '20180714', 'YYYY-MM-DD' ) AS TODATE2
+FROM DUAL;
+
+-> SELECT * FROM EMP
+WHERE HIREDATE > TO_DATE('1981/06/01', 'YYYY/MM/DD');
+
+숫자 데이터 <-> 문자 데이터 <-> 날짜 데이터
+
+[집계함수 보충]
+- SUM
+-> SELECT SUM( DISTINCT SAL ),
+SUM( ALL SAL ),
+SUM( SAL )
+FROM EMP;
+
+-COUNT
+-> SELECT COUNT( DISTINCT SAL ),
+COUNT( ALL SAL ),
+COUNT( SAL )
+FROM EMP;
+
+**COUNT는 NULL을 무시한다. 즉 IS NOT NULL 조건을 넣어줄 필요없다. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
