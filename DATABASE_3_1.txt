@@ -1,0 +1,383 @@
+** 데이터를 추가, 수정, 삭제하는 데이터 조작어 DML
+* INSERT
+- 모양
+INSERT INTO 테이블명 [(열1, 열2, ..., 열N)]
+VALUES (열1데이터, 열2데이터, ..., 열N데이터);
+
+create table dept_temp as select * from dept;
+
+- 열지정 삽입
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME, LOC)
+VALUES (50, 'DATABASE', 'SEOUL');
+
+-> 60, 'KOREA IT', 'SINCHON' 삽입
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME)
+VALUES (90, 'DATABASE2');
+
+- 열지정 생략 : 해당 모든 열에 데이터를 넣을 때에만 생략이 가능
+INSERT INTO DEPT_TEMP
+VALUES(70, 'KOREA IT', 'GANGNAM');
+
+-> 80, 'KOREA IT', 'NEW YORK'
+INSERT INTO DEPT_TEMP
+VALUES(80, 'KOREA IT', 'NEW YORK');
+
+- NULL지정
+INSERT INTO DEPT_TEMP(DEPTNO, LOC, DNAME)
+VALUES( 11, 'BUSAN', 'EDU' );
+
+INSERT INTO DEPT_TEMP(DEPTNO, LOC, DNAME)
+VALUES( 12, NULL, 'EDU' );
+
+- 문자열로 NULL 삽입
+INSERT INTO DEPT_TEMP(DEPTNO, LOC, DNAME)
+VALUES( 12, '', 'EDU' );
+
+- NULL 암시적 삽입
+INSERT INTO DEPT_TEMP(DEPTNO, DNAME)
+VALUES (90, 'DATABASE2');
+1!=1 -> FALSE
+- 테이블에 날짜 데이터 입력하기
+CREATE TABLE EMP_1TEMP
+AS SELECT * FROM EMP WHERE 1<>1;
+**WHERE절의 조건이 1<>1이기 때문에 각 행을 조건식에 
+대입한 결과 값은 항상 FALSE가 되어 결과적으로 행(데이터)은 
+만들어지지 않는다.
+
+- INSERT문으로 날짜 데이터 입력하기 (날짜 사이에 / 입력)
+INSERT INTO EMP_1TEMP(EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+VALUES(9999, '홍길동', 'MANAGER', NULL, '2001/01/01', 4000, 1000, 10);
+
+- INSERT문으로 날짜 데이터 입력하기 (날짜 사이에 - 입력)
+INSERT INTO EMP_1TEMP(EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+VALUES(1111, '성춘향', 'PRESIDENT', NULL, '2001-01-01', 4000, 1000, 10);
+-> 오라클이 설치되어 있는 운영체제의 종류나 사용하는 기본 언어군에 따라 날짜 표기방식이 다르다.
+
+-TO_DATE함수를 사용하여 데이터 삽입
+INSERT INTO EMP_1TEMP(EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+VALUES(2111, '이순신', 'MANAGER', 9999, TO_DATE('2001/01/01', 'YYYY-MM-DD'), 2000, NULL, 20);
+
+-SYSDATE를 사용하여 날짜 데이터 입력
+INSERT INTO EMP_1TEMP(EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+VALUES(2112, '이순신', 'MANAGER', 9999, SYSDATE, 2000, NULL, 20);
+
+- 서브쿼리를 사용하여 한 번에 여러 데이터 추가하기
+유의점
+1) VALUES절은 사용하지 않는다.
+2) 데이터가 추가되는 테이블의 열개수와 서브쿼리의 열개수가 일치해야한다.
+3) 데이터가 추가되는 테이블의 자료형과 서브쿼리의 자료형이 일치해야한다.
+->
+INSERT INTO EMP_1TEMP (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO) 
+SELECT E.EMPNO, E.ENAME, E.JOB, E.MGR, E.HIREDATE, E.SAL, E.COMM, E.DEPTNO 
+FROM EMP E, SALGRADE S 
+WHERE E.SAL BETWEEN S.LOSAL AND S.HISAL AND S.GRADE = 1;
+
+문제) 이름에 'A'가 들어가 있는 EMP테이블의 데이터를 EMP_1TEMP테이블로 삽입할 것.
+INSERT INTO EMP_1TEMP (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO) 
+SELECT EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO
+FROM EMP
+WHERE ENAME LIKE '%A%';
+
+** UPDATE 데이터를 변경/수정
+- 모양
+UPADATE [변경할 테이블]
+SET [변경할 열1] = [데이터],
+[변경할 열2] = [데이터], ...,
+[변경할 열N] = [데이터]
+[WHERE 데이터를 변경할 대상 행을 선별하기 위한 조건]
+
+CREATE TABLE DEPT_TEMP2
+AS SELECT * FROM DEPT;
+
+UPDATE DEPT_TEMP2
+SET LOC = 'SEOUL';
+// 아래 표에 맞게 수정해주세요.
+DEPTNO 	DNAME                        LOC
+10 	ACCOUNTING                   NEW YORK
+20 	RESEARCH                     DALLAS
+30 	SALES                        CHICAGO
+40 	OPERATIONS                   BOSTON
+
+수정할 내용을 되돌리고 싶을 때 : ROLLBACK;
+하지만 변경사항에 대해 확정을 짓고싶다 : COMMIT;
+
+문제) 부서번호가 40인 부서 이름을 'DATEBASE',
+지역을 'DAEJEON'로 변경하시오.
+UPDATE DEPT_TEMP2
+SET DNAME = 'DATABASE',
+LOC = 'DAEJEON'
+WHERE DEPTNO = 40;
+
+- 서브쿼리를 사용하여 데이터 수정
+UPDATE DEPT_TEMP2
+SET LOC = 'BUSAN'
+WHERE
+DEPTNO IN (
+	select deptno from dept_temp2
+	where loc='DAEJEON'
+);
+
+'마이그레이션(=데이터 이관)'
+병원에서 병원프로그램을 A사의 프로그램을 이용하다가 
+B사의 프로그램으로 변경했을 경우를 생각해보자. 
+A사의 데이터베이스의 데이터를 B사 프로그램에 맞게 가져가는 것(인터페이스한다)을
+데이터 마이그레이션이라고 표현을 한다.
+
+** 테이블에 있는 데이터 삭제
+CREATE TABLE EMP_TEMP2
+AS SELECT * FROM EMP;
+
+- 모양
+DELTE FROM [테이블명]
+[WHERE 삭제할 대상을 선별할 조건식]
+
+SELECT * FROM EMP_TEMP2
+WHERE JOB = 'MANAGER';
+
+DELETE FROM EMP_TEMP2
+WHERE JOB = 'MANAGER';
+
+- 서브쿼리를 사용하여 데이터 삭제
+DELETE FROM EMP_TEMP2
+WHERE EMPNO IN (
+	select
+	e.empno
+	from emp_temp2 e, salgrade s
+	where
+	e.sal between s.losal and s.hisal
+	and
+	s.grade = 3
+	and
+	e.deptno = 30
+);
+
+** 트랜잭션 제어와 세션
+1)트랜잭션이란? 
+더 이상 분할할 수 없는 최소 수행 단위를 뜻하며,
+계좌 이체와 같이 하나의 작업 또는 밀접하게 연관된 작업을 수행하기 위해 
+한 개 이상의 데이터 조작 명령어로 이루어진다. 즉 어떤기능 한 가지를 수행하는
+'SQL문 덩어리'라고 볼 수 있다.
+
+트랜잭션은 하나의 트랜잭션 내에 있는 여러 명령어를 한 번에 수행하여
+작업을 완료하거나 아예 모두 수행하지 않은 상태, 즉 모든 작업을 취소한다.
+이러한 특성으로 트랜잭션 의미를 'ALL OR NOTHING'문장으로 표현하기도 한다.
+그리고 트랜잭션을 제어하기 위해 사용하는 명령어를 TCL(Transaction Control Language)라고 한다.
+
+키워드 : commit, rollback
+
+2)세션이란?
+일반적으로 세션(SESSION)은 어떤 활동을 위한 시간이나 기간을 뜻한다.
+오라클 데이터베이스에서 접속을 시작으로 여러 데이터베이스에서 관련 작업을 수행한 후
+접속을 종료하기까지 전체 기간을 의미한다.
+좀 더 익숙한 단어로 표현하면 게임이나 웹 서비스에 로그인해서 로그아웃할 때까지의
+기간 또는 모바일 온라인 게임 등을 켜고 끌 때까지의 기간 정도로 생각해도 된다.
+**그러므로 세션이 여러개라는 말은 현재 오라클 데이터베이스에 접속하여 사용중인
+연결이 여러개 있다는 뜻이다.
+
+- 읽기 일관성의 중요성
+데이터베이스는 여러 곳에서 동시에 접속하여 데이터를 관리/사용하는 것이 목적이므로
+대부분 수많은 세션이 동시에 연결되어 있다.
+읽기 일관성이란 어떤 특정 세션에서 테이블에 데이터를 변경 중일 때 그 외의 다른
+세션에서는 데이터의 변경이 확정되기 전까지 변경 사항을 알 필요가 없으므로,
+데이터를 변경 중인 세션을 제외한 나머지 세션에서는 현재 진행 중인 변경과 
+무관한 본랜의 데이터를 보여주는 특성을 의미한다.
+
+** 수정 중인 데이터 접근을 막는 LOCK
+LOCK이란?
+특정 세션에서 조작중인 데이터는 트랜잭션이 완료되 전까지 다른 세션에서
+조작할 수 없는 상태가 되는 것이다. 즉 데이터가 잠기는(LOCK)것이다.
+조작 중인 데이터를 다른 세션은 조작할 수 없도록 접근을 보류시키는 것을 뜻한다.
+
+문제)
+EMP_TEMP_PRA테이블 생성 EMP테이블 구조와 데이터를 모두 복제..
+모든 사원의 이름을 PAUL이라고 변경한다.
+CREATE TABLE EMP_TEMP_PRA
+AS SELECT * FROM EMP;
+
+UPDATE EMP_TEMP_PRA
+SET ENAME = 'PAUL';
+
+ROLLBACK;
+
+모든 사원의 SAL을 0으로 수정한다.
+UPDATE EMP_TEMP_PRA
+SET SAL = 0;
+
+COMMIT;
+// 복습
+UPDATE EMP_TEMP_PRA
+SET ENAME = 'PAUL';
+
+UPDATE EMP_TEMP_PRA
+SET SAL = 0;
+
+INSERT ~
+
+DELTE ~~
+
+ROLLBACK; OR COMMIT;
+
+EMP_TEMP_PRA 데이터 모두 삭제~
+DELTE FORM EMP_TEMP_PRA; 
+COMMIT;
+
+** 테이블을 생성하는 CREATE
+- 모양
+CREATE TABLE 소유계정.테이블이름(
+	열1-이름 열1-자료형,
+	열2-이름 열2-자료형, ... , 
+	열N-이름 열N-자료형,
+);
+
+- 테이블 이름 생성 규칙
+1. 테이블 이름은 문자로 시작해야한다.
+(한글도 가능하지만 숫자로는 시작불가)
+2. 테이블 이름은 30BYTE이하여야한다.
+(즉 영어는 30자, 한글은 15자까지 사용가능)
+3. 같은 사용자 소유의 테이블 이름은 중복될 수 없다.
+4. 테이블 이름은 영문자(한글가능), 숫자(0~9)와 특수문자 $, #, _를 사용할 수 있다.
+5. SQL키워드는 테이블 이름으로 사용할 수 없다.
+
+- 열이름 생성 규칙
+1. 열 이름은 문자로 시작해야한다.
+2. 열 이름은 30BYTE 이하여야한다.
+3. 한 테이블의 열 이름은 중복될 수 없다.
+4. 열 이름은 영문자(한글가능), 숫자(0~9)와 특수문자 $, #, _를 사용할 수 있다.
+ 
+CREATE TABLE EMP_DDL (
+	EMPNO NUMBER(4),
+	ENAME VARCHAR2(10),
+	JOB VARCHAR2(9),
+	MGR NUMBER(4),
+	HIREDATE DATE,
+	SAL NUMBER(7, 2),
+	COMM NUMBER(7, 2),
+	DEPTNO NUMBER(2)
+);
+
+** DESC 테이블명 : DESC EMP_DDL
+
+- 기존 테이블 열 구조와 데이터를 복사하여 새 테이블 생성
+CREATE TABLE DEPT_DDL 
+AS SELECT * FROM DEPT;
+
+- 기존 테이블 열 구조와 일부 데이터만 복사하여 새 테이블 생성
+CREATE TABLE EMP_DDL_30
+AS SELECT * FROM EMP WHERE DEPTNO = 30;
+
+- 기존 테이블의 열 구조만 복사하여 새 테이블 생성
+CREATE TABLE EMPDEPT_DDL
+AS
+SELECT
+E.EMPNO, E.ENAME, E.JOB,D.DNAME
+FROM EMP E, DEPT D
+WHERE 1<>1;
+
+** ALTER : 테이블을 변경
+ALTER명령어는 이미 생성된 오라클 데이터베이스 객체를 변경할 때 사용한다.
+
+CREATE TABLE EMP_ALTER
+AS SELECT * FROM EMP;
+- 테이블에 열 추가하는 ADD
+[ALTER TABLE] EMP_ALTER [ADD] HP VARCHAR2(20);
+
+- 테이블에 열 이름을 변경하는 RENAME
+ALTER TABLE EMP_ALTER RENAME COLUMN HP TO TEL;
+
+- 테이블에 열 자료형을 변경하는 MODIFY
+ALTER TABLE EMP_ALTER MODIFY EMPNO NUMBER(5);
+-> MGR을 NUMBER(5)
+ALTER TABLE EMP_ALTER MODIFY MGR NUMBER(5);
+
+- 특정 열을 삭제할 때 사용하는 DROP
+ALTER TABLE EMP_ALTER DROP COLUMN TEL;
+-> COMM삭제
+ALTER TABLE EMP_ALTER DROP COLUMN COMM;
+
+- 테이블 삭제 : DROP
+DROP TABLE 테이블명
+DROP TABLE EMP_ALTER;
+
+문제)
+학과 테이블 - SUBJECT
+1. 학과번호 - SUBNUM NUMBER(2)
+2. 학과명   - SUBNAME VARCHAR(30)
+3. 학과장 번호 - SUBMASTERNUM NUMBER(10)
+을 생성해주세요
+
+CREATE TABLE SUBJECT (
+	SUBNUM NUMBER(2),
+	SUBNAME VARCHAR(30),
+	SUBMASTERNUM NUMBER(10)
+);
+
+문제)
+학과번호 : 학과명 : 학과장번호
+1 BUSINESS 10
+2 COMPUTER 20
+3 DESIGN 30
+-> INSERT해주세요.
+INSERT INTO SUBJECT 
+VALUES(1, 'BUSINESS', 10 );
+INSERT INTO SUBJECT 
+VALUES(2, 'COMPUTER', 20);
+INSERT INTO SUBJECT 
+VALUES(3, 'DESIGN', 30);
+
+문제)
+교수 테이블 - PROF
+1. 교직원 번호 - PROFNUM NUMBER(10) 
+2. 교수명     - PROFNAME VARCHAR(30)
+3. 학과번호    - PROFSUBNUM NUMBER(2)
+4. 연락처     - PROFTEL VARCHAR(30)
+5. 학과장     - PROFMASTERNUM NUMBER(10)
+
+CREATE TABLE PROF (
+	PROFNUM NUMBER(10),
+	PROFNAME VARCHAR(30),
+	PROFSUBNUM NUMBER(2),
+	PROFTEL VARCHAR(30),
+	PROFMASTERNUM NUMBER(10)
+);
+
+문제)
+교수 * 6 INSERT
+학과장은 학과마다 오직 1명만 존재
+PROFMASTERNUM 10, 20, 30만 존재
+그 외의 교수들은 비워둔다.
+
+
+가상 쇼핑몰 설계
+
+1. 회원가입 테이블
+- 아이디
+- 비밀번호
+- 이름
+- 연락처
+- 메일
+
+2. 아이템 테이블
+- 아이템 번호
+- 아이템 이름
+- 아이템 등록일자
+
+3. 아이템 재고 테이블
+- 아이템 번호
+- 아이템 수량
+
+4 ~ 6번까지 추가로 설계를 해본다.
+예시) 관리자 테이블.. 
+
+
+
+
+
+
+
+
+
+
+https://bizdevelop.tistory.com/35
+https://ko.wikipedia.org/wiki/ACID
+cap이론
+구조도 그리는 툴 : draw.io
