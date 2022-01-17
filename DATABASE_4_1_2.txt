@@ -1,0 +1,265 @@
+** 제약조건(CONTRAINT)은 테이블에 저장할 데이터를 제약하는 특수한 규칙을 뜻한다. 오라클에서 사용하는 제약 조건은 테이블의 특정열에 지정한다. 제약조건을 지정한 열에 제약조건에 부합하지 않는 데이터를 저장할 수 없다.
+
+- NOT NULL 
+-> 지정한 열에 NULL을 허용하지 않는다. 
+-> NULL을 제외한 데이터의 중복은 허용된다.
+
+- UNIQUE 
+-> 지정한 열이 유일한 값을 가져야 한다.
+-> 즉 중복될 수 없다. 단 NULL은 값의 중복에서 제외
+
+- PRIMARY KEY :
+-> 지정한 열이 유일한 값이면서 NULL을 허용하지 않는다.
+-> 테이블에 하나만 지정 가능
+
+- FORIEGN KEY :
+-> 다른 테이블의 열을 참조하여 존재하는 값만 입력가능
+
+- CHECK :
+-> 설정한 조건식을 만족하는 데이터만 입력 가능
+
+데이터 무결성?
+데이터베이스에 저장되는 데이터의 정확성과 일관성을 보장한다는 의미이며, 이를 위해 항상 유지해야 하는 기본 규칙을 가진다.
+제약조건은 이러한 데이터 무결성을 지키기 위한 안전장치로서 중요한 역할을 한다. 그리고 테이블 데이터의 삽입(INSERT), 수정(UPDATE), 삭제(DELETE) 등 모든 과정에서 지켜야한다.
+
+무결성 종류
+1 영역 무결성 : 열에 저장되는 값의 적정 여부를 확인. 자료형, 적절한 형식의 데이터, NULL 여부같은 정해 놓은 범위를 만족하는 데이터임을 규정
+
+2 객체 무결성 : 테이블 데이터를 유일하게 식별할 수 있는 기본키는 반드시 값을 가지고 있어야 하며 NULL이 될 수 없고 중복될 수 없다.
+
+3 참조 무결성 : 참조 테이블의 외래키 값은 참조 테이블의 기본키로서 존재 하며, NULL이 가능
+
+이러한 무결성을 보장하기 위해 오라클에서는 다섯 가지 제약조건을 제공한다. 제약조건은 데이터베이스 설계시점, 즉 테이블을 생성할 때 주로 지정한다.
+
+- 테이블을 생성하며 제야 조건 지정
+CREATE TABLE TABLE_NOTNULL (
+	LOGIN_ID VARCHAR2(20) NOT NULL,
+	LOGIN_PW VARCHAR2(20) NOT NULL
+);
+
+문제) ID : 1004, PW : 1234 INSERT 해주세요!
+INSERT INTO TABLE_NOTNULL VALUES('1004', '1234');
+
+문제) TEL VARCHAR2(2) 컬럼을 TABLE_NOTNULL테이블에 추가해주세요.
+ALTER TABLE TABLE_NOTNULL ADD TEL VARCHAR2(2);
+
+문제) TEL VARCHAR2(20) 컬럼의 타입을 VARCHAR2(30)으로 변경하시오.
+ALTER TABLE TABLE_NOTNULL MODIFY TEL VARCHAR2(30);
+
+문제) ID가 1004인 데이터의 TEL을 1235로 수정해주세요.
+UPDATE TABLE_NOTNULL
+SET TEL = '1235'
+WHERE LOGIN_ID = '1004';
+ 
+문제) ID가 1004인 데이터를 삭제하시오.
+DELETE FROM TABLE_NOTNULL WHERE LOGIN_ID = '1004';
+
+문제) TABLE_NOTNULL 테이블을 삭제해주세요.
+DROP TABLE TABLE_NOTNULL;
+
+- 중복되지 않는 값 : UNIQUE
+CREATE TABLE TABLE_UNIQUE (
+	LOGIN_ID VARCHAR2(20) UNIQUE,
+	LOGIN_PW VARCHAR2(20) NOT NULL,
+	TEL VARCHAR2(20)
+);
+
+넣어주세요~
+ID : NULL
+PW : 'PW'
+TEL : '1234'
+
+INSERT INTO TABLE_UNIQUE 
+VALUES(NULL, 'PW', '1234');
+
+ID : 1004
+PW : 'PW'
+TEL : '1234'
+
+INSERT INTO TABLE_UNIQUE 
+VALUES(1004, 'PW', '1234');
+
+문제) ID가 NULL인 데이터만 삭제해주세요.
+DELETE FROM TABLE_UNIQUE WHERE LOGIN_ID IS NULL;
+
+- 유일하게 하나만 있는 PRIMARY KEY(PK)
+PRIMARY KEY 제약 조건은 UNIQUE와 NOT NULL 제약 조건의 특성을 모두 가지는 제약조건이다.
+즉 데이터 중복을 허용하지 않고 NULL도 허용하지 않는다. NULL이 아닌 유일한 값을 가지므로 주민등록번호나 EMP 테이블의 사원번호같이 테이블의 각 행을 식별하는데 사용한다.
+CREATE TABLE TABLE_PK(
+	LOGIN_ID VARCHAR2(20) PRIMARY KEY,
+	LOGIN_PW VARCHAR2(20) NOT NULL,
+	TEL VARCHAR2(20)
+);
+
+넣어주세요~
+
+test1
+pw
+1234
+INSERT INTO TABLE_PK VALUES( 'test1', 'pw', '1234');
+
+test2
+pw
+1234
+INSERT INTO TABLE_PK VALUES( 'test2', 'pw', '1234');
+
+null
+pw
+1234
+INSERT INTO TABLE_PK VALUES( null, 'pw', '1234'); -- 에러
+
+
+쇼핑몰..제약조건 추가
+pk, not null, unique + 다이그램에도 표시
+
+- FOREIGN KEY
+외래키, 외부키라고도 부르는 FOREIGN KEY는 서로 다른 테이블 간 관계를 정의하는데 사용하는 제약조건이다. 특정 테이블에서 PRIMARY KEY제약 조건을 지정한 열을 다른 테이블의 특정 열에서 참조하겠다는 의미로 지정할 수 있다.
+
+CREATE TABLE DEPT_FK (
+	DEPTNO NUMBER(2) CONSTRAINT DEPTFK_DEPTNO_PK PRIMARY KEY,
+	DNAME VARCHAR(14),
+	LOC VARCHAR(13)
+); 
+
+CREATE TABLE EMP_FK (
+	EMPNO NUMBER(4) CONSTRAINT EMPFK_EMPNO_PK PRIMARY KEY,
+	ENAME VARCHAR2(10),
+	JOB VARCHAR2(9),
+	MGR NUMBER(4),
+	HIREDATE DATE,
+	SAL NUMBER(7, 2),
+	COMM NUMBER(7, 2),
+	DEPTNO NUMBER(2) CONSTRAINT EMPFK_DEPTNO_FK REFERENCES DEPT_FK (DEPTNO)
+);
+
+
+DEPT_FK 
+10 business seoul
+20 computer busan
+30 design daejeon
+40 management newyork
+
+insert into dept_fk values(10, 'business', 'seoul');
+insert into dept_fk values(20, 'computer', 'busan');
+insert into dept_fk values(30, 'design', 'daejeon');
+insert into dept_fk values(40, 'management', 'newyork');
+
+EMP_FK
+
+9999
+TEST_NAME
+TEST_JOB
+NULL
+TO_DATE('2001/01/01', 'YYYY/MM/DD')
+3000
+NULL
+10
+
+INSERT INTO EMP_FK
+VALUES(9999, 'TEST_NAME', 'TEST_JOB', NULL, TO_DATE('2001/01/01', 'YYYY/MM/DD'), 3000, NULL, 50);
+
+DELETE FROM DEPT_FK WHERE DEPTNO = 10;
+DELETE FROM EMP_FK WHERE DEPTNO = 10;
+
+문제)
+학과 테이블 - SUBJECT_CONST
+1. 학과번호 : SUBNUMBER NUMBER(2)
+2. 학과명 : SUBNAME VARCHAR2(10)
+3. 학과장 번호 : SUBMASTERNUM NUMBER(10)
+제약조건 
+학과번호 - PK
+나머지 열 모두 NULL값 허용 안함.
+테이블을 생성해주세요.
+
+아래와 같은 데이터를 INSERT해주세요.
+학과번호 : 학과명 : 학과장 번호
+1 : BUSINESS : 10
+2 : COMPUTER : 20
+3 : DESIGN : 30
+
+-> CONSTRAINT 조회
+CREATE TABLE SUBJECT_CONST (
+	SUBNUMBER NUMBER(2) CONSTRAINT SUBJECTCONST_SUBNUMBER_PK PRIMARY KEY,
+	SUBNAME NUMBER(2) NOT NULL,
+	SUBMASTERNUM NUMBER(10) NOT NULL
+);
+
+INSERT INTO SUBJECT_CONST VALUES(1, 'BUSINESS', 10);
+INSERT INTO SUBJECT_CONST VALUES(2, 'COMPUTER', 20);
+INSERT INTO SUBJECT_CONST VALUES(3, 'DESIGN', 30);
+
+ALTER TABLE SUBJECT_CONST  MODIFY SUBNAME VARCHAR2(10);
+
+교수테이블 - PROF_CONST
+1. 교직원 번호 : PROFNUM NUMBER(10)
+2. 교수명 : PROFNAME VARCHAR2(20)
+3. 학과번호 : PROFSUBNUM NUMBER(2)
+4. 연락처 : PROFTEL VARCHAR2(20)
+5. 학과장 : PROFMASTERNUM NUMBER(10)
+제약조건 
+교직원번호 :  PK
+학과번호 : FK (SUBJECT_CONST 학과번호 를 참조)
+NOT NULL :  교수명, 학과번호
+
+데이터 삽입
+학과장은 각학과마다 반드시 1명 존재할 것
+10, 20, 30 -> 학과장이 있어야 한다.
+그 외의 교수들은 비워둔 상태로 총 6개 데이터를 삽입한다.
+
+CREATE TABLE PROF_CONST (
+	PROFNUM NUMBER(10) CONSTRAINT PROFCONST_PROFNUM_PK PRIMARY KEY,
+	PROFNAME VARCHAR2(10) NOT NULL,
+	PROFSUBNUM NUMBER(2) CONSTRAINT PROFCONST_PROFSUBNUM_FK REFERENCES SUBJECT_CONST(SUBNUMBER),
+	PROFTEL NUMBER(10),
+	PROFMASTERNUM NUMBER(10)
+);
+
+학생테이블 STU_CONST
+1.학생번호 : STUNUM NUMBER(10)
+2. 학생이름 :  STUNAME VARCHAR2(20)
+3. 연락처 : STUPHONE VARCHAR2(10)
+4. 학과번호 : STUSUBJECTNUM NUMBER(2)
+
+제약조건
+1. 학생번호 : PK
+2. 학생이름 : NOT NULL
+3. 연락처 : UNIQUE
+4. 학과번호 : FK
+
+CREATE TABLE STU_CONST (
+	STUNUM NUMBER(10) CONSTRAINT STUCONST_STUNUM_PK PRIMARY KEY,
+	STUNAME VARCHAR2(20) NOT NULL,
+	STUPHONE VARCHAR2(10) UNIQUE,
+	STUSUBJECTNUM NUMBER(2) CONSTRAINT STUCONST_STUSUBJECTNUM_FK REFERENCES SUBJECT_CONST(SUBNUMBER)
+);
+
+
+
+// 관리자 권한 테이블
+1-일반사용자, 2-직원, 3-admin(부서장)
+
+// 회원테이블
+id, pw, 이름, 나이, 연락처,  가입날짜, 권한
+
+// 커뮤니티 테이블
+게시물 번호(시퀀스 : 자동증가 +1), id, 작성일자, 내용
+https://parkbosung.tistory.com/14
+
+-> 일반사용자가 볼 수 있는 커뮤니티 내용과
+-> 직원이 볼수 있는 내용을 구분할 것
+-> 부서장도 따로 볼 수 있도록..
+
+// 확장... & 다이어그램도 작성해볼 것(draw.io)
+
+
+
+
+
+
+
+
+
+
+
+
+

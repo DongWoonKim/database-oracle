@@ -1,0 +1,497 @@
+**PL/SQL
+SQL만으로 구현이 어렵거나 구현 불가능한 작업을 수행하기 위해 오라클에서 제공하는 프로그래밍 언어이다.
+
+- 구조
+블록? PL/SQL은 데이터베이스 관련 특정 작업을 수행하는 명령어와 실행에 필요한 여러 요소를 정의하는 명령어 등으로 구성되며, 이러한 명령어를 모아 둔 PL/SQL프로그램의 기본 단위를 블록(BLOCK)이라고 한다.
+
+DECLARE(선언부) - 선택 : 실행에 사용될 변수, 상수, 커서 등을 선언
+
+BEGIN(실행부) - 필수 : 조건문, 반복문, SELECT, DML, 함수 등을 정의
+
+EXCEPTION(예외처리부) - 선택 : PL/SQL 실행 도중 발생하는 오류를 해결하는 문장 기술
+
+- 모양
+DECLARE
+	[실행에 필요한 여러 요소 선언]	
+BEGIN 
+	[작업을 위해 실제 실행하는 명령어]
+EXCEPTION
+	[PL/SQL수행 도중 발생하는 오류 처리]
+END;
+/
+
+** Hello, PL/SQL!
+BEGIN
+	DBMS_OUTPUT.PUT_LINE('Hello, PL/SQL!');
+END;
+/
+
+DBMS_OUTPUT.PUT_LINE(내용) -> 내용을 화면에 출력해줌.
+
+SET SERVEROUTPUT ON; -- PL/SQL 결과를 화면에 출력할 수 있도록 해줌.
+
+
+** PL/SQL 주석
+
+-- 한 줄 주석
+DECLARE
+	V_EMPNO NUMBER(4) := 7788;
+	V_ENAME VARCHAR2(10);
+BEGIN
+	V_ENAME := 'SCOTT';
+	--DBMS_OUTPUT.PUT_LINE('V_EMPNO : ' || V_EMPNO);
+	DBMS_OUTPUT.PUT_LINE('V_ENAME : ' || V_ENAME);
+END;
+/
+
+-- 여러 줄 주석
+- 모양
+/*
+	이 안의 내용은 무시됩니다.
+*/
+DECLARE
+	V_EMPNO NUMBER(4) := 7788;
+	V_ENAME VARCHAR2(10);
+BEGIN
+	V_ENAME := 'SCOTT';
+	
+	/*
+	DBMS_OUTPUT.PUT_LINE('V_EMPNO : ' || V_EMPNO); 
+	DBMS_OUTPUT.PUT_LINE('V_ENAME : ' || V_ENAME);
+	*/
+END;
+/
+
+** 변수와 상수
+변수는 데이터를 일시적으로 저장하는 요소로 이름과 저장할 자료형을 지정하여
+선언부(DECLARE)에서 작성한다.
+선언부에서 작성한 변수는 실행부(BEGIN)에서 활용한다.
+
+- 모양
+1)변수이름 2)자료형 3):= 4)값 또는 값이 도출되는 여러 표현식;
+EX) V_EMPNO NUMBER(4) := 7788;
+1) 데이터를 저장할 변수 이름을 지정한다. 이 변수 이름을 통해 저장한 데이터를 
+사용하게 된다.
+2) 선언한 변수에 저장할 데이터의 자료형을 지정한다.
+3) 선언한 변수에 값을 할당하기 위해 := 를 사용한다.
+4) 변수에 저장할 첫 데이터 값이나 저장할 수 있는 값이 결과로 반환되는 표현식을 
+지정한다.
+
+-- 변수 선언 및 변수 값 출력하기 : 변수 - 변할 수 있는 수
+DECLARE
+	V_EMPNO NUMBER(4) := 7788;
+	V_ENAME VARCHAR2(10);
+BEGIN
+	-- 1. V_ENAME에 ALLEN 할당
+	V_ENAME := 'ALLEN';
+	-- 2. V_EMPNO와 V_ENAME을 출력하시오.
+	DBMS_OUTPUT.PUT_LINE('V_EMPNO : ' || V_EMPNO);
+	DBMS_OUTPUT.PUT_LINE('V_ENAME : ' || V_ENAME);
+END;
+/
+
+
+-- 상수 정의하기 : 변하지 않는 값
+지정한 값이 필요에 따라 변하는 변수와 달리 상수(CONSTANT)는 한번 저장한 값이
+프로그램이 종료될 때가지 유지되는 저장 요소이다.
+
+- 모양
+1)변수이름 2)CONSTANT 3)자료형 4):= 5)값 또는 값을 도출하는 여러 표현식;
+1) 데이터를 저장할 변수 이름을 지정한다.
+2) 선언한 변수를 상수로 정의한다. 즉 한번 저장한 값은 변하지 않는다.
+3) 선언한 변수에 저장할 데이터의 자료형을 지정한다.
+4) 선언한 변수에 값을 할당하기 위해 :=를 사용한다.
+5) 변수에 저장할 첫 데이터 값이나 저장할 수 있는 값을 결과로 반환하는 표현식을
+지정한다.
+
+DECLARE
+	V_TAX CONSTANT NUMBER(1) := 3;
+BEGIN
+	-- V_TAX := 5; -- 상수이기 때문에 값 재할당 불가.
+	DBMS_OUTPUT.PUT_LINE('V_TAX : ' || V_TAX);
+END;
+/
+
+-- 변수에 기본값을 설정한 후 출력
+DEFAULT 키워드는 변수에 저장할 기본값을 지정한다.
+
+DECLARE
+	V_DEPTNO NUMBER(2) DEFAULT 10;
+BEGIN
+	V_DEPTNO := 20;
+	DBMS_OUTPUT.PUT_LINE('V_DEPTNO : ' || V_DEPTNO);
+END;
+/
+
+-- 변수에 NOT NULL을 설정하고 값을 대입한 후 출력
+DECLARE
+	V_DEPTNO NUMBER(2) NOT NULL := 10;
+BEGIN
+	DBMS_OUTPUT.PUT_LINE('V_DEPTNO : ' || V_DEPTNO);
+END;
+/
+
+-- 변수에 NOT NULL 및 기본값을 설정한 후 출력
+DECLARE
+	V_DEPTNO NUMBER(2) NOT NULL DEFAULT 10; 
+BEGIN
+	DBMS_OUTPUT.PUT_LINE('V_DEPTNO : ' || V_DEPTNO); 
+END;
+/
+
+-- 변수 이름 정하기
+변수를 포함한 PL/SQL문에서는 지정하는 객체 이름을 식별자라고 한다.
+식별자에 이름을 붙이는 규칙은 다음과 같다.
+1. 같은 블록 안에서 식별자는 고유해야 하며 중복 될 수 없다.
+2. 대/소문자를 구별하지 않는다.
+3. 테이블 이름 붙이는 규치과 같은 규칙을 따른다.
+	1) 이름은 문자로 시작해야 한다.(한글도 가능하며, 숫자로 시작할 수 없음)
+	2) 이름은 30BYTE이하여야 한다.(영어는 30자, 한글은 15자까지 사용가능)
+	3) 이름은 영문자(한글 가능), 숫자(0~9), 특수문자($, #, _)를 (첫 단어로) 사용할 수 없다
+ 	4) SQL키워드는 테이블 이름으로 사용할 수 없다.
+
+-- 변수의 자료형
+변수에 저장할 데이터가 어떤 종류인지를 특정 짓기 위해 사용하는 자료형은 크게
+스칼라, 복합, 참조, LOB(Large Object)로 구분된다.
+
+->스칼라형 
+스칼라형은 숫자, 문자열, 날짜 등과 같이 오라클에서 기본으로 정의해 놓은 자료형으로 내부 구성 요소가 없는 단일 값을 의미한다.
+
+스칼라형은 숫자, 문자열, 날짜, 논리 데이터로 나뉘며 대표적인 스칼라는 다음과 같다.
+- NUMBER : 소수점을 포함할 수 있는 최대 38자리 숫자 데이터
+- CHAR : 최대 32,767바이트 고정 길이 문자열 데이터
+- VARCHAR2 : 최대 32,767 가변 길이 문자열 데이터
+- DATE : 기원전 4712년 1월 1일부터 서기 9999년 12월 31일 까지의 날짜 데이터
+- BOOLEAN : PL/SQL에서만 사용할 수 있는 논리 자료형으로 true, false, NULL을 포함. 
+
+-> 참조형
+참조형은 오라클 데이터베이스에 존재하는 특정 테이블 열의 자료형이나 하나의 구조를 참조하는 
+자료형이다.
+
+열을 참조할 때  %TYPE
+
+행을 참조할 때 %ROWTYPE
+
+을 사용한다.
+
+- 모양
+1)변수이름 2)테이블이름.열이름 3)%TYPE;
+1) 데이터가 저장될 때 변수의 이름을 지정한다. 이 변수를 통해 저장된 데이터를 사용하게 된다.
+2) 특정 테이블에 속한 열의 이름을 명시한다. 변수는 명시된 테이블의 열과 같은 크기의 자료형이 지정된다.
+3) 앞에서 지정한 테이블의 열과 같은 자료형 및 크기임을 명시한다.
+이후 := 또는 DEFAULT키워드를 사용하여 값을 먼저 지정해줄 수도 있다.
+
+- 참조형(열)의 변수에 값을 대입한 후 출력하기
+DECLARE
+	V_DEPTNO DEPT.DEPTNO%TYPE := 50;
+BEGIN
+	DBMS_OUTPUT.PUT_LINE('V_DEPTNO : ' || V_DEPTNO);
+END;
+/
+ 
+- 특정 테이블에서 하나의 열이 아닌 행 구조 전체를 참조할 때 %ROWTYPE을 사용한다.
+- 모양
+1)변수이름 2)테이블이름3)%ROWTYPE;
+
+2)특정 테이블을 지정한다. 변수는 명시된 테이블 열과 같은 종류의 데이터를 가지게 된다.
+3) %TYPE과는 달리 저장할 값을 직접 지정할 수 없다.
+
+- 참조형(행)의 변수에 값을 대입한 후 출력
+DECLARE
+	V_DEPT_ROW DEPT%ROWTYPE;
+BEGIN
+	SELECT
+		DEPTNO, DNAME, LOC INTO V_DEPT_ROW
+	FROM
+		DEPT
+	WHERE
+		DEPTNO = 40;
+
+	DBMS_OUTPUT.PUT_LINE('DEPTNO : ' || V_DEPT_ROW.DEPTNO);
+	-- DNAME 출력
+	DBMS_OUTPUT.PUT_LINE('DNAME : ' || V_DEPT_ROW.DNAME);
+	-- LOC 출력
+	DBMS_OUTPUT.PUT_LINE('LOC : ' || V_DEPT_ROW.LOC);
+END;
+/
+** INTO V_DEPT_ROW를 사용하여 DEPT 테이블의 SELECT문의 결과 행을
+V_DEPT_ROW에 대입한다.
+
+- 복합형, LOB형
+복합형은 여러 종류 및 갯수의 데이터를 저장하기 위해 사용자가 직접 정의하는 자료형으로 컬렉션, 레코드로 구분된다.
+
+LOB형은 대용량의 텍스트/이미지/동영상/사운드 데이터 등 대용량 데이터를 저장하기 위한 자료형으로 대표적으로 BLOB, CLOB등이 있다.
+
+- 조건 제어문
+특정 조건식을 통해 상황에 따라 실행할 내용을 달리하는 방식의 명령어를 조건문이라고 한다. PL/SQL에서는 IF문과 CASE문을 사용할 수 있다.
+
+ - IF ~ THEN : 특정 조건을 만족하는 경우 작업 수행
+ - IF ~ THEN ~ ELSE : 특정 조건을 만족하는 경우와 반대 경우에 각각 지정한 작업 수행
+ - IF ~ THEN ~ ELSIF : 여러 조건에 따라 각각 지정한 작업 수행
+
+1) IF ~ THEN
+IF 조건식 THEN  -- true 또는 false 판별이 가능한 조건식을 지정한다. 여러 연산자 및 함수를 사용할 수 있다.
+
+	수행할 명령어; -- 조건식의 결과 값이 true일 때 실행할 명령어를 지정한다. 여러 명령어 지정 가능
+
+END IF; -- IF를 종료한다.
+
+- 변수에 입력한 값이 홀수인지 알아보기
+DECLARE
+	V_NUMBER NUMBER := 13;
+BEGIN
+	IF MOD(V_NUMBER, 2) = 1 THEN
+		DBMS_OUTPUT.PUT_LINE('V_NUMBER는 홀수이다');
+	END IF;
+END;
+/
+문제1) 변수에 입력한 값이 짝수인지 알아보기
+
+DECLARE
+	V_NUMBER NUMBER := 12;
+BEGIN
+	IF MOD(V_NUMBER, 2) = 0 THEN
+		DBMS_OUTPUT.PUT_LINE('V_NUMBER는 짝수이다');
+	END IF;
+END;
+/
+
+문제2)
+V_SCORE NUMBER변수 선언
+값이 90이상인 경우 'A학점 입니다' 출력하시오.
+
+DECLARE
+	V_SCORE NUMBER := 90;
+BEGIN
+	IF V_SCORE >= 90 THEN
+		DBMS_OUTPUT.PUT_LINE('A학점 입니다!');
+	END IF;
+END;
+/
+
+2) IF ~ THEN ~ ELSE
+- 모양
+
+IF 조건식 THEN 		-- true 또는 false 판별이 가능한 조건식을 지정
+	수행할 명령어;	-- 조건식의 결과 값이 true일 경우 수행
+ELSE			
+	수행할 명령어;	-- 조건식의 해당되지 않을 경우 수행
+END IF;
+
+-- 변수에 입력된 값이 홀수인지 짝수인지 알아보기
+DECLARE
+	V_NUMBER NUMBER := 14;
+BEGIN
+	IF MOD(V_NUMBER, 2) = 1 THEN
+		-- 홀수입니다.
+		DBMS_OUTPUT.PUT_LINE('홀수 입니다!');
+	ELSE
+		-- 짝수입니다.
+		DBMS_OUTPUT.PUT_LINE('짝수 입니다!');
+	END IF;
+
+END;
+/
+
+문제) 남자 혹은 여자 V_GENDER 할당된 값에따라 분류하여 출력하시오.
+DECLARE 
+	V_GENDER VARCHAR2(10);
+BEGIN
+	V_GENDER := '남자';
+	IF V_GENDER = '남자' THEN
+		DBMS_OUTPUT.PUT_LINE('남자 입니다.');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('여자 입니다');
+	END IF;
+END;
+/
+
+- 모양
+IF 조건식1 THEN
+	수행할 명령어;
+ELSIF 조건식2
+	수행할 명령어;
+ELSIF 조건식3 
+	수행할 명령어;
+...	
+ELSE
+	수행할 명령어;
+END IF;
+
+DECLARE
+	V_NUMBER NUMBER := 3;
+BEGIN
+	IF V_NUMBER >= 10 THEN
+		DBMS_OUTPUT.PUT_LINE('10보다 같거나 큽니다.');
+	ELSIF V_NUMBER >= 5 THEN
+		DBMS_OUTPUT.PUT_LINE('5보다 같거나 큽니다.');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('4보다 같거나 작습니다.');
+	END IF;
+END;
+/
+
+문제) V_SCORE변수에 점수에 따라 학점 출력
+조건...
+90점 이상 : A학점
+80점 이상 : B학점
+70점 이상 : C학점
+60점 이상 : D학점
+그 외 : F학점
+
+
+DECLARE
+	V_SCORE NUMBER := 90;
+BEGINE
+	IF V_SCORE >= 90 THEN
+		DBMS_OUTPUT.PUT_LINE('A학점');
+	ELSIF V_SCORE >= 80 THEN
+		DBMS_OUTPUT.PUT_LINE('B학점');
+	ELSIF V_SCORE >= 70 THEN
+		DBMS_OUTPUT.PUT_LINE('C학점');
+	ELSIF V_SCORE >= 60 THEN
+		DBMS_OUTPUT.PUT_LINE('D학점');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('F학점');
+	END IF;
+END;
+/
+
+-- CASE조건문
+CASE 조건문도 IF조건문과 마찬가지로 조건식의 결과 값에 따라 여러가지 수행 작업을 지정할 수 있다.
+IF ~ THEN ~ ELSIF문과 같이 조건식의 결과 값이 여러 가지일 때 CASE 조건문을 좀 더 단순하게 표현할 수 있다.
+
+- 모양
+
+CASE 비교기준
+	WHEN 값1 THEN
+		수행할 명령어;
+	WHEN 값2 THEN
+		수행할 명령어;
+	...
+	ELSE
+		수행할 명령어;
+
+END CASE;
+
+
+DECLARE
+	V_SCORE NUMBER := 87;
+BEGIN
+	CASE TRUNC(V_SCORE/10)
+		WHEN 10 THEN
+			DBMS_OUTPUT.PUT_LINE('A학점');
+		WHEN 9 THEN
+			DBMS_OUTPUT.PUT_LINE('A학점');
+		WHEN 8 THEN
+			DBMS_OUTPUT.PUT_LINE('B학점');
+		WHEN 7 THEN
+			DBMS_OUTPUT.PUT_LINE('C학점');
+		WHEN 6 THEN
+			DBMS_OUTPUT.PUT_LINE('D학점');
+		ELSE
+			DBMS_OUTPUT.PUT_LINE('F학점');
+	END CASE;
+END;
+/
+
+- 기본LOOP
+- 모양
+LOOP
+	반복수행작업;
+END LOOP;
+
+DECLARE 
+	V_NUM NUMBER := 0;
+BEGIN
+
+	LOOP
+		
+		DBMS_OUTPUT.PUT_LINE('현재 V_NUM : ' || V_NUM);
+		V_NUM := V_NUM + 1;
+
+		EXIT WHEN V_NUM > 4;
+	END LOOP;
+
+END;
+/
+-- EXIT WHEN 조건식 : 조건에 맞을 때 반복문 종료
+
+DECLARE
+	V_NUM NUMBER := 0;
+BEGIN
+	
+	LOOP
+		DBMS_OUTPUT.PUT_LINE('현재 V_NUM : ' || V_NUM);
+		V_NUM := V_NUM + 1;
+	
+		-- EXIT WHEN V_NUM > 4;
+		-- IF문으로 바꿀 것.... EXIT키워드가 반복문 탈출 키워드	
+		IF V_NUM > 4 THEN
+			EXIT;
+		END IF;
+	END LOOP;
+
+END;
+/
+
+DECLARE
+	V_NUM NUMBER := 0;
+BEGIN
+	WHILE V_NUM < 4 LOOP 
+		DBMS_OUTPUT.PUT_LINE('현재 V_NUM : ' || V_NUM);
+		V_NUM := V_NUM + 1;
+	END LOOP;
+END;
+/
+
+BEGIN
+	FOR i IN 0..4 LOOP
+		DBMS_OUTPUT.PUT_LINE('현재 i의 값 : ' || i);
+	END LOOP;
+END;
+/
+
+BEGIN
+
+	FOR i IN REVERSE 0..4 LOOP
+		DBMS_OUTPUT.PUT_LINE('현재 i의 값 : ' || i);
+	END LOOP;
+END;
+/
+
+BEGIN
+
+	FOR i IN 0..4 LOOP
+		-- CONTINUE : 조건을 충족할 경우 처음으로 올라감
+		-- i값은 그대로 증가한 상태로...
+		CONTINUE WHEN MOD(i, 2) = 1; 
+		DBMS_OUTPUT.PUT_LINE('현재 i의 값 : ' || i);
+	END LOOP; 
+
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
